@@ -25,7 +25,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** alcance, reglas y aceptación no ambiguos.
 **Criterios de finalización:** revisión cruzada de especificación, plan, arquitectura, API y QA; primer commit documental.
 
-## Fase 3. Modelo SQLite — pendiente
+## Fase 3. Modelo SQLite — completado
 
 **Objetivo:** crear un esquema relacional multi-tenant reproducible.
 **Tareas:** tablas, constraints, claves foráneas, índices, triggers mínimos, WAL y script idempotente `db:init`.
