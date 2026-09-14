@@ -88,35 +88,35 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** jornada explícita por empleado.
 **Criterios de finalización:** tests de horario válido, inválido, superpuesto y tenant.
 
-## Fase 12. Disponibilidad — pendiente
+## Fase 12. Disponibilidad — completado
 
 **Objetivo:** calcular slots reservables desde reglas persistidas.
 **Tareas:** zona horaria, bloques, duración, asociación, citas bloqueantes e incremento de 15 minutos.
 **Resultado esperado:** `GET /api/availability`.
 **Criterios de finalización:** tests fuera de jornada, servicio no ofrecido, duración excedida, slots ocupados/libres.
 
-## Fase 13. Citas — pendiente
+## Fase 13. Citas — completado
 
 **Objetivo:** implementar operaciones base de citas.
 **Tareas:** crear, listar, ver, editar notas y autorización contextual.
 **Resultado esperado:** citas con final derivado y relaciones same-tenant.
 **Criterios de finalización:** integración válida, validaciones y roles aprobados.
 
-## Fase 14. Prevención de solapamientos — pendiente
+## Fase 14. Prevención de solapamientos — completado
 
 **Objetivo:** impedir dobles reservas de un profesional.
 **Tareas:** predicado exacto, estados bloqueantes, exclusión por id y transacción inmediata.
 **Resultado esperado:** conflicto `409` consistente.
 **Criterios de finalización:** diez escenarios obligatorios de conflicto aprobados.
 
-## Fase 15. Reprogramación, cancelación y estados — pendiente
+## Fase 15. Reprogramación, cancelación y estados — completado
 
 **Objetivo:** completar el ciclo de vida trazable.
 **Tareas:** endpoint de reprogramación; cancelación lógica; máquina de estados; permisos.
 **Resultado esperado:** mutaciones atómicas y coherentes.
 **Criterios de finalización:** transición, terminales, cancelación y reprogramación libre/ocupada aprobadas.
 
-## Fase 16. Filtros — pendiente
+## Fase 16. Filtros — completado
 
 **Objetivo:** consultar agenda por criterios combinables.
 **Tareas:** cliente, empleado, servicio, fechas, estado y paginación.
