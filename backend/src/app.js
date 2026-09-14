@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { createAuthenticate } from './middleware/authenticate.js';
 import { createAppointmentRepository } from './repositories/appointmentRepository.js';
 import { createClientRepository } from './repositories/clientRepository.js';
+import { createDashboardRepository } from './repositories/dashboardRepository.js';
 import { createEmployeeRepository } from './repositories/employeeRepository.js';
 import { createEmployeeServiceRepository } from './repositories/employeeServiceRepository.js';
 import { createScheduleRepository } from './repositories/scheduleRepository.js';
@@ -14,6 +15,7 @@ import { createAuthRouter } from './routes/authRoutes.js';
 import { createAppointmentRouter } from './routes/appointmentRoutes.js';
 import { createAvailabilityRouter } from './routes/availabilityRoutes.js';
 import { createClientRouter } from './routes/clientRoutes.js';
+import { createDashboardRouter } from './routes/dashboardRoutes.js';
 import { createEmployeeRouter } from './routes/employeeRoutes.js';
 import { AppError } from './errors/AppError.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -26,6 +28,7 @@ import { createAppointmentService } from './services/appointmentService.js';
 import { createAvailabilityService } from './services/availabilityService.js';
 import { createCatalogService } from './services/catalogService.js';
 import { createClientService } from './services/clientService.js';
+import { createDashboardService } from './services/dashboardService.js';
 import { createEmployeeManagementService } from './services/employeeManagementService.js';
 import { createEmployeeOfferingService } from './services/employeeOfferingService.js';
 import { createScheduleService } from './services/scheduleService.js';
@@ -58,6 +61,7 @@ export function createApp({ db, env }) {
   const employeeServiceRepository = createEmployeeServiceRepository(db);
   const scheduleRepository = createScheduleRepository(db);
   const appointmentRepository = createAppointmentRepository(db);
+  const dashboardRepository = createDashboardRepository(db);
   const authService = createAuthService({
     db,
     tenantRepository,
@@ -89,6 +93,7 @@ export function createApp({ db, env }) {
   };
   const availabilityService = createAvailabilityService(schedulingDependencies);
   const appointmentService = createAppointmentService(schedulingDependencies);
+  const dashboardService = createDashboardService({ dashboardRepository, employeeRepository });
   const authenticate = createAuthenticate({ tokenService, userRepository });
 
   app.disable('x-powered-by');
@@ -109,6 +114,7 @@ export function createApp({ db, env }) {
   app.use('/api/services', createServiceRouter({ catalogService, authenticate }));
   app.use('/api/availability', createAvailabilityRouter({ availabilityService, authenticate }));
   app.use('/api/appointments', createAppointmentRouter({ appointmentService, authenticate }));
+  app.use('/api/dashboard', createDashboardRouter({ dashboardService, authenticate }));
 
   app.use(notFound);
   app.use(errorHandler);

@@ -53,7 +53,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** identidad verificable y contexto autenticado.
 **Criterios de finalización:** tests de alta, login correcto/incorrecto, falta/token inválido y usuario inactivo.
 
-## Fase 7. RBAC — en progreso
+## Fase 7. RBAC — completado
 
 **Objetivo:** aplicar permisos de backend centralizados y alcance contextual.
 **Tareas:** middleware de roles; guards de Service; endpoints básicos de usuarios ADMIN.
@@ -137,7 +137,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** calendario funcional por permisos.
 **Criterios de finalización:** tests de mapping/reversión y build aprobados; interacción visual queda sujeta a QA.
 
-## Fase 19. Dashboard — pendiente
+## Fase 19. Dashboard — en progreso
 
 **Objetivo:** exponer y visualizar métricas del tenant.
 **Tareas:** conteos, hoy, servicios solicitados, clientes frecuentes y scope profesional.
