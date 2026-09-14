@@ -39,7 +39,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** servidor configurable con `GET /api/health`.
 **Criterios de finalización:** tests de health, 404, JSON y errores aprobados.
 
-## Fase 5. Multi-tenancy — en progreso
+## Fase 5. Multi-tenancy — completado
 
 **Objetivo:** hacer obligatorio el contexto tenant en persistencia y dominio.
 **Tareas:** repositorios tenant-scoped, helpers de pertenencia, respuestas opacas cross-tenant.
@@ -60,28 +60,28 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** matriz de `spec.md` aplicada.
 **Criterios de finalización:** suites ADMIN, RECEPTIONIST, PROFESSIONAL y CLIENT aprobadas.
 
-## Fase 8. Clientes — pendiente
+## Fase 8. Clientes — completado
 
 **Objetivo:** CRUD tenant-scoped de clientes.
 **Tareas:** repository/service/controller/routes, validación, búsqueda, paginación y baja lógica.
 **Resultado esperado:** `/api/clients` completo.
 **Criterios de finalización:** CRUD, errores y aislamiento aprobados.
 
-## Fase 9. Empleados — pendiente
+## Fase 9. Empleados — completado
 
 **Objetivo:** administrar profesionales y vínculo opcional con usuarios.
 **Tareas:** CRUD, activación, vínculo same-tenant, filtros básicos.
 **Resultado esperado:** empleados administrables sin exigir cuenta.
 **Criterios de finalización:** CRUD, vínculos, unicidad y aislamiento aprobados.
 
-## Fase 10. Servicios — pendiente
+## Fase 10. Servicios — completado
 
 **Objetivo:** administrar catálogo y asociaciones con empleados.
 **Tareas:** CRUD, precio en centavos, duración; rutas de `employee_services`.
 **Resultado esperado:** catálogo válido y profesionales habilitados por servicio.
 **Criterios de finalización:** validaciones, asociaciones cross-tenant y aislamiento aprobados.
 
-## Fase 11. Horarios de profesionales — pendiente
+## Fase 11. Horarios de profesionales — completado
 
 **Objetivo:** gestionar bloques semanales simples.
 **Tareas:** CRUD anidado, ISO weekday, validación de rangos y solapamiento.

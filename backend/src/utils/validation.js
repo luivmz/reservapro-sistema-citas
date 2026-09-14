@@ -81,6 +81,37 @@ export function uuid(value, field = 'id') {
   return normalized;
 }
 
+export function integer(value, field, { min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER } = {}) {
+  if (!Number.isInteger(value) || value < min || value > max) {
+    validationError([{ field, message: `Debe ser un entero entre ${min} y ${max}.` }]);
+  }
+  return value;
+}
+
+export function queryBoolean(value, field = 'active') {
+  if (value === undefined) return null;
+  if (value === 'true' || value === true) return true;
+  if (value === 'false' || value === false) return false;
+  validationError([{ field, message: 'Debe ser true o false.' }]);
+}
+
+export function uuidArray(value, field) {
+  if (!Array.isArray(value)) validationError([{ field, message: 'Debe ser un arreglo.' }]);
+  return [...new Set(value.map((item) => uuid(item, field)))];
+}
+
+export function weekday(value) {
+  return integer(value, 'dayOfWeek', { min: 1, max: 7 });
+}
+
+export function localTime(value, field) {
+  const normalized = requiredString(value, field, { min: 5, max: 5 });
+  if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(normalized)) {
+    validationError([{ field, message: 'Debe tener formato HH:mm de 00:00 a 23:59.' }]);
+  }
+  return normalized;
+}
+
 export function pagination(query) {
   const page = Number(query.page ?? 1);
   const limit = Number(query.limit ?? 20);

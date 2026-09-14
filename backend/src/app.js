@@ -2,15 +2,28 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { createAuthenticate } from './middleware/authenticate.js';
+import { createClientRepository } from './repositories/clientRepository.js';
+import { createEmployeeRepository } from './repositories/employeeRepository.js';
+import { createEmployeeServiceRepository } from './repositories/employeeServiceRepository.js';
+import { createScheduleRepository } from './repositories/scheduleRepository.js';
+import { createServiceRepository } from './repositories/serviceRepository.js';
 import { createTenantRepository } from './repositories/tenantRepository.js';
 import { createUserRepository } from './repositories/userRepository.js';
 import { createAuthRouter } from './routes/authRoutes.js';
+import { createClientRouter } from './routes/clientRoutes.js';
+import { createEmployeeRouter } from './routes/employeeRoutes.js';
 import { AppError } from './errors/AppError.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { createHealthRouter } from './routes/healthRoutes.js';
+import { createServiceRouter } from './routes/serviceRoutes.js';
 import { createUserRouter } from './routes/userRoutes.js';
 import { createAuthService } from './services/authService.js';
+import { createCatalogService } from './services/catalogService.js';
+import { createClientService } from './services/clientService.js';
+import { createEmployeeManagementService } from './services/employeeManagementService.js';
+import { createEmployeeOfferingService } from './services/employeeOfferingService.js';
+import { createScheduleService } from './services/scheduleService.js';
 import { createTokenService } from './services/tokenService.js';
 import { createUserService } from './services/userService.js';
 
@@ -34,6 +47,11 @@ export function createApp({ db, env }) {
   const tokenService = createTokenService(env);
   const tenantRepository = createTenantRepository(db);
   const userRepository = createUserRepository(db);
+  const clientRepository = createClientRepository(db);
+  const employeeRepository = createEmployeeRepository(db);
+  const serviceRepository = createServiceRepository(db);
+  const employeeServiceRepository = createEmployeeServiceRepository(db);
+  const scheduleRepository = createScheduleRepository(db);
   const authService = createAuthService({
     db,
     tenantRepository,
@@ -42,6 +60,19 @@ export function createApp({ db, env }) {
     bcryptRounds: env.bcryptRounds,
   });
   const userService = createUserService({ userRepository, bcryptRounds: env.bcryptRounds });
+  const clientService = createClientService({ clientRepository, userRepository });
+  const employeeManagementService = createEmployeeManagementService({ employeeRepository, userRepository });
+  const employeeOfferingService = createEmployeeOfferingService({
+    employeeRepository,
+    serviceRepository,
+    employeeServiceRepository,
+  });
+  const catalogService = createCatalogService({
+    serviceRepository,
+    employeeRepository,
+    employeeServiceRepository,
+  });
+  const scheduleService = createScheduleService({ scheduleRepository, employeeRepository });
   const authenticate = createAuthenticate({ tokenService, userRepository });
 
   app.disable('x-powered-by');
@@ -52,6 +83,14 @@ export function createApp({ db, env }) {
   app.use('/api/health', createHealthRouter(db));
   app.use('/api/auth', createAuthRouter({ authService, authenticate }));
   app.use('/api/users', createUserRouter({ userService, authenticate }));
+  app.use('/api/clients', createClientRouter({ clientService, authenticate }));
+  app.use('/api/employees', createEmployeeRouter({
+    employeeManagementService,
+    employeeOfferingService,
+    scheduleService,
+    authenticate,
+  }));
+  app.use('/api/services', createServiceRouter({ catalogService, authenticate }));
 
   app.use(notFound);
   app.use(errorHandler);
