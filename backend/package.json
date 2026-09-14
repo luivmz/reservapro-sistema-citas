@@ -1,0 +1,31 @@
+{
+  "name": "reservapro-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:init": "node src/database/init.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "better-sqlite3": "11.10.0",
+    "cors": "2.8.6",
+    "dayjs": "1.11.23",
+    "dotenv": "17.4.2",
+    "express": "5.2.1",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "validator": "13.15.35"
+  },
+  "devDependencies": {
+    "supertest": "7.2.2"
+  }
+}
