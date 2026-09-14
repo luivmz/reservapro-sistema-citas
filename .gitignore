@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+
+# SQLite databases and journals
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+backend/data/
+
+# Build and test artifacts
+coverage/
+dist/
+.vite/
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+*.temp
+
+# OS and editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
