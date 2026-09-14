@@ -39,21 +39,21 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** servidor configurable con `GET /api/health`.
 **Criterios de finalización:** tests de health, 404, JSON y errores aprobados.
 
-## Fase 5. Multi-tenancy — pendiente
+## Fase 5. Multi-tenancy — en progreso
 
 **Objetivo:** hacer obligatorio el contexto tenant en persistencia y dominio.
 **Tareas:** repositorios tenant-scoped, helpers de pertenencia, respuestas opacas cross-tenant.
 **Resultado esperado:** ninguna consulta operativa sin tenant autenticado.
 **Criterios de finalización:** pruebas A/B de lectura, modificación, baja y asociación aprobadas.
 
-## Fase 6. Autenticación — pendiente
+## Fase 6. Autenticación — completado
 
 **Objetivo:** registro seguro de organización y sesión JWT.
 **Tareas:** alta atómica tenant+ADMIN, bcryptjs, login, `/me`, middleware JWT con algoritmo/expiración, logout frontend.
 **Resultado esperado:** identidad verificable y contexto autenticado.
 **Criterios de finalización:** tests de alta, login correcto/incorrecto, falta/token inválido y usuario inactivo.
 
-## Fase 7. RBAC — pendiente
+## Fase 7. RBAC — en progreso
 
 **Objetivo:** aplicar permisos de backend centralizados y alcance contextual.
 **Tareas:** middleware de roles; guards de Service; endpoints básicos de usuarios ADMIN.

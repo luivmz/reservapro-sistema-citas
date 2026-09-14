@@ -13,7 +13,12 @@ describe('base de la API Express', () => {
     db = initializeDatabase(createDatabase(':memory:'));
     app = createApp({
       db,
-      env: { frontendOrigin: 'http://localhost:5173' },
+      env: {
+        frontendOrigin: 'http://localhost:5173',
+        jwtSecret: 'test-secret-with-at-least-32-characters-long',
+        jwtExpiresIn: '2h',
+        bcryptRounds: 10,
+      },
     });
   });
 
