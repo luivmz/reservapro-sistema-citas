@@ -5,14 +5,14 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import Swal from 'sweetalert2';
 import { api } from '../services/api.js';
-import { notify } from '../components/ui.js';
+import { confirmAction, notify } from '../components/ui.js';
 import { appointmentToEvent } from '../utils/calendar.js';
 import { dateTime, escapeHtml } from '../utils/format.js';
 
 export async function renderCalendar(page, user) {
   const canReschedule = ['ADMIN', 'RECEPTIONIST', 'CLIENT'].includes(user.role);
   page.innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">Vista visual</p><h1>${user.role === 'PROFESSIONAL' ? 'Mi agenda' : user.role === 'CLIENT' ? 'Mis citas' : 'Calendario'}</h1><p>Mes, semana y día con datos servidos por la API.</p></div><a class="button primary" href="#appointments">Nueva cita</a></div>
+    <div class="page-head"><div><p class="eyebrow">Vista visual</p><h1>${user.role === 'PROFESSIONAL' ? 'Mi agenda' : user.role === 'CLIENT' ? 'Mis citas' : 'Calendario'}</h1><p>Mes, semana y día con datos servidos por la API.</p></div><a class="button primary" href="#appointments">${canReschedule ? 'Nueva cita' : 'Ver citas'}</a></div>
     <section class="panel calendar-panel"><div id="calendar" aria-label="Calendario de citas"></div></section>
   `;
   const calendar = new Calendar(document.querySelector('#calendar'), {
@@ -41,7 +41,24 @@ export async function renderCalendar(page, user) {
     },
     async eventClick(info) {
       const item = info.event.extendedProps.appointment;
-      await Swal.fire({ title: escapeHtml(item.serviceName), html: `<dl class="detail-list"><dt>Cliente</dt><dd>${escapeHtml(item.clientName)}</dd><dt>Profesional</dt><dd>${escapeHtml(item.employeeName)}</dd><dt>Inicio</dt><dd>${dateTime(item.startAt)}</dd><dt>Estado</dt><dd>${item.status}</dd></dl>`, confirmButtonText: 'Cerrar' });
+      const cancellable = canReschedule && ['SCHEDULED', 'CONFIRMED'].includes(item.status);
+      const result = await Swal.fire({
+        title: item.serviceName,
+        html: `<dl class="detail-list"><dt>Cliente</dt><dd>${escapeHtml(item.clientName)}</dd><dt>Profesional</dt><dd>${escapeHtml(item.employeeName)}</dd><dt>Inicio</dt><dd>${dateTime(item.startAt)}</dd><dt>Estado</dt><dd>${item.status}</dd></dl>`,
+        showDenyButton: cancellable,
+        showCancelButton: true,
+        confirmButtonText: 'Gestionar cita',
+        denyButtonText: 'Cancelar cita',
+        cancelButtonText: 'Cerrar',
+      });
+      if (result.isConfirmed) location.hash = 'appointments';
+      if (result.isDenied && await confirmAction({ title: 'Cancelar cita', text: 'Permanecerá en el histórico.', confirmText: 'Cancelar cita' })) {
+        try {
+          await api(`/appointments/${item.id}/cancel`, { method: 'PATCH' });
+          notify('Cita cancelada.');
+          calendar.refetchEvents();
+        } catch (error) { notify(error.message, 'error'); }
+      }
     },
     async eventDrop(info) {
       try {

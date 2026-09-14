@@ -48,6 +48,7 @@ export async function renderAppointments(page, user) {
         <td><span class="badge status-${item.status.toLowerCase().replace('_', '-')}">${item.status}</span></td>
         <td class="actions">
           <button class="link-button" data-detail="${item.id}">Ver</button>
+          ${canOperate ? `<button class="link-button" data-notes="${item.id}">Editar notas</button>` : ''}
           ${['SCHEDULED', 'CONFIRMED'].includes(item.status) && user.role !== 'PROFESSIONAL' ? `<button class="link-button" data-reschedule="${item.id}">Reprogramar</button><button class="link-button danger" data-cancel="${item.id}">Cancelar</button>` : ''}
           ${['ADMIN', 'RECEPTIONIST', 'PROFESSIONAL'].includes(user.role) && next.filter((status) => status !== 'CANCELLED').length ? `<select class="status-select" data-status="${item.id}" aria-label="Cambiar estado de ${escapeHtml(item.clientName)}"><option value="">Cambiar estado</option>${next.filter((status) => status !== 'CANCELLED').map((status) => `<option>${status}</option>`).join('')}</select>` : ''}
         </td>
@@ -133,6 +134,24 @@ export async function renderAppointments(page, user) {
     document.querySelectorAll('[data-detail]').forEach((button) => button.addEventListener('click', async () => {
       const item = appointments.find(({ id }) => id === button.dataset.detail);
       await Swal.fire({ title: item.serviceName, html: `<dl class="detail-list"><dt>Cliente</dt><dd>${escapeHtml(item.clientName)}</dd><dt>Profesional</dt><dd>${escapeHtml(item.employeeName)}</dd><dt>Inicio</dt><dd>${dateTime(item.startAt)}</dd><dt>Estado</dt><dd>${item.status}</dd><dt>Notas</dt><dd>${escapeHtml(item.notes || 'Sin notas')}</dd></dl>`, confirmButtonText: 'Cerrar' });
+    }));
+    document.querySelectorAll('[data-notes]').forEach((button) => button.addEventListener('click', async () => {
+      const item = appointments.find(({ id }) => id === button.dataset.notes);
+      const result = await Swal.fire({
+        title: 'Editar notas',
+        input: 'textarea',
+        inputValue: item.notes,
+        inputAttributes: { maxlength: '2000', 'aria-label': 'Notas de la cita' },
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Volver',
+      });
+      if (!result.isConfirmed) return;
+      try {
+        await api(`/appointments/${item.id}`, { method: 'PUT', body: { notes: result.value } });
+        notify('Notas actualizadas.');
+        await load(query);
+      } catch (error) { notify(error.message, 'error'); }
     }));
     document.querySelectorAll('[data-cancel]').forEach((button) => button.addEventListener('click', async () => {
       if (!await confirmAction({ title: 'Cancelar cita', text: 'La cita quedará en el histórico como CANCELLED.', confirmText: 'Cancelar cita' })) return;

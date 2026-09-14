@@ -54,13 +54,20 @@ export async function renderResources(page, resource, user) {
   const definition = definitions[resource];
   const manageable = canManage(user.role, resource) || resource === 'users' && user.role === 'ADMIN';
   let items = [];
+  let linkedUsers = [];
   let editing = null;
 
   async function load() {
     page.innerHTML = loading();
     try {
-      const response = await api(definition.path, { query: { limit: 100 } });
+      const [response, usersResponse] = await Promise.all([
+        api(definition.path, { query: { limit: 100 } }),
+        user.role === 'ADMIN' && ['clients', 'employees'].includes(resource)
+          ? api('/users', { query: { limit: 100 } })
+          : Promise.resolve({ data: [] }),
+      ]);
       items = response.data;
+      linkedUsers = usersResponse.data;
       draw();
     } catch (error) {
       page.innerHTML = errorState(error);
@@ -68,6 +75,10 @@ export async function renderResources(page, resource, user) {
   }
 
   function draw() {
+    const linkedRole = resource === 'clients' ? 'CLIENT' : 'PROFESSIONAL';
+    const linkField = user.role === 'ADMIN' && ['clients', 'employees'].includes(resource)
+      ? `<label>Cuenta vinculada<select name="userId"><option value="">Sin cuenta</option>${linkedUsers.filter(({ role }) => role === linkedRole).map((account) => `<option value="${account.id}" ${editing?.userId === account.id ? 'selected' : ''}>${escapeHtml(account.name)} · ${escapeHtml(account.email)}</option>`).join('')}</select></label>`
+      : '';
     const rows = items.map((item) => `
       <tr>${definition.columns.map(([key]) => `<td data-label="${key}">${display(item[key], key)}</td>`).join('')}
         ${manageable ? `<td class="actions"><button class="link-button" data-edit="${item.id}">Editar</button><button class="link-button danger" data-delete="${item.id}">Desactivar</button></td>` : ''}
@@ -75,7 +86,7 @@ export async function renderResources(page, resource, user) {
     `).join('');
     page.innerHTML = `
       <div class="page-head"><div><p class="eyebrow">Directorio</p><h1>${definition.title}</h1><p>Datos limitados a tu organización y permisos.</p></div>${manageable ? '<button class="button primary" id="new-resource">Nuevo</button>' : ''}</div>
-      ${manageable ? `<section class="panel form-panel ${editing ? '' : 'collapsed'}" id="resource-panel"><div class="panel-head"><h2>${editing ? `Editar ${definition.singular}` : `Nuevo ${definition.singular}`}</h2><button class="icon-button" id="close-form" aria-label="Cerrar formulario">×</button></div><form id="resource-form" class="form-grid">${definition.fields.map((f) => field(f, editing ?? {})).join('')}<p class="form-error span-all" id="resource-error" hidden></p><div class="form-actions span-all"><button class="button ghost" type="button" id="cancel-form">Cancelar</button><button class="button primary" type="submit">Guardar</button></div></form></section>` : ''}
+      ${manageable ? `<section class="panel form-panel ${editing ? '' : 'collapsed'}" id="resource-panel"><div class="panel-head"><h2>${editing ? `Editar ${definition.singular}` : `Nuevo ${definition.singular}`}</h2><button class="icon-button" id="close-form" aria-label="Cerrar formulario">×</button></div><form id="resource-form" class="form-grid">${definition.fields.map((f) => field(f, editing ?? {})).join('')}${linkField}<p class="form-error span-all" id="resource-error" hidden></p><div class="form-actions span-all"><button class="button ghost" type="button" id="cancel-form">Cancelar</button><button class="button primary" type="submit">Guardar</button></div></form></section>` : ''}
       <section class="panel"><div class="panel-head"><div><h2>Listado</h2><p>${items.length} registro${items.length === 1 ? '' : 's'}</p></div></div>${items.length ? `<div class="table-wrap"><table><thead><tr>${definition.columns.map(([, label]) => `<th>${label}</th>`).join('')}${manageable ? '<th>Acciones</th>' : ''}</tr></thead><tbody>${rows}</tbody></table></div>` : empty(`No hay ${definition.title.toLowerCase()} todavía.`)}</section>
     `;
     bind();
@@ -97,6 +108,7 @@ export async function renderResources(page, resource, user) {
     document.querySelector('#resource-form')?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const body = Object.fromEntries(new FormData(event.currentTarget));
+      if ('userId' in body && !body.userId) body.userId = null;
       if (resource === 'services') {
         body.durationMinutes = Number(body.durationMinutes);
         body.priceCents = Math.round(Number(body.price) * 100);

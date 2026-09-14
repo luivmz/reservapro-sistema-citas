@@ -1,6 +1,5 @@
 import { api } from '../services/api.js';
 import { setSession } from '../services/session.js';
-import { escapeHtml } from '../utils/format.js';
 import { fieldError, notify } from '../components/ui.js';
 
 export function renderAuth(app, mode = 'login') {
@@ -57,7 +56,7 @@ export function renderAuth(app, mode = 'login') {
       notify(register ? 'Organización creada.' : 'Sesión iniciada.');
       location.hash = response.data.user.role === 'CLIENT' ? 'appointments' : 'dashboard';
     } catch (requestError) {
-      error.textContent = escapeHtml(fieldError(requestError));
+      error.textContent = fieldError(requestError);
       error.hidden = false;
     } finally {
       button.disabled = false;
