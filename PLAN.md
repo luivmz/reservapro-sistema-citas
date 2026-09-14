@@ -123,21 +123,21 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** listado eficiente y tenant-scoped.
 **Criterios de finalización:** filtros individuales/combinados, rangos inválidos y scopes por rol aprobados.
 
-## Fase 17. Frontend base — pendiente
+## Fase 17. Frontend base — completado
 
 **Objetivo:** construir SPA ligera sin framework usando Vite y ES2023.
 **Tareas:** shell, router cliente, sesión, API client, login/registro, navegación RBAC, estados UI y CSS responsive.
 **Resultado esperado:** aplicación navegable que consume REST.
 **Criterios de finalización:** tests unitarios de lógica y smoke de vistas aprobados.
 
-## Fase 18. FullCalendar — pendiente
+## Fase 18. FullCalendar — pendiente de validación manual
 
 **Objetivo:** mostrar y operar agenda en mes/semana/día.
 **Tareas:** mapear eventos, detalle, creación, edición, reprogramación/cancelación y reversión ante rechazo.
 **Resultado esperado:** calendario funcional por permisos.
 **Criterios de finalización:** tests de mapping/reversión y build aprobados; interacción visual queda sujeta a QA.
 
-## Fase 19. Dashboard — en progreso
+## Fase 19. Dashboard — completado
 
 **Objetivo:** exponer y visualizar métricas del tenant.
 **Tareas:** conteos, hoy, servicios solicitados, clientes frecuentes y scope profesional.
@@ -165,7 +165,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** respuestas seguras sin fuga.
 **Criterios de finalización:** suite A/B completa aprobada.
 
-## Fase 23. QA visual — pendiente
+## Fase 23. QA visual — pendiente de validación manual
 
 **Objetivo:** inspeccionar UI real y accesibilidad básica.
 **Tareas:** navegador a 360 px/escritorio, mes/semana/día, teclado, foco, modales, toasts, errores y vacíos.
