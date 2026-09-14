@@ -32,7 +32,7 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** base vacía válida e inicializable.
 **Criterios de finalización:** tests de esquema, FK e idempotencia aprobados.
 
-## Fase 4. Backend base — pendiente
+## Fase 4. Backend base — completado
 
 **Objetivo:** establecer API Express por capas y manejo consistente de errores.
 **Tareas:** configuración, app/server, health, CORS, Helmet, JSON, 404 y error handler.
