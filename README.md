@@ -2,7 +2,7 @@
 
 ReservaPro es una aplicación web académica para administrar clientes, profesionales, servicios, horarios y citas bajo un modelo SaaS multi-tenant con aislamiento estricto y autorización RBAC.
 
-> Estado: implementación funcional y QA automatizado completados. La validación visual en navegador y la publicación final permanecen pendientes.
+> Estado: implementación funcional, QA automatizado y publicación de `main` completados. La validación visual en navegador permanece pendiente.
 
 ## Objetivo y características
 

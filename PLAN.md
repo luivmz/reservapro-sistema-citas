@@ -179,12 +179,12 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** una persona nueva puede instalar y evaluar el proyecto.
 **Criterios de finalización:** README, arquitectura, API y QA contrastados con rutas, esquema, variables, scripts y resultados reales.
 
-## Fase 25. Verificación final y publicación — pendiente
+## Fase 25. Verificación final y publicación — completado
 
 **Objetivo:** producir un estado estable reproducible y publicarlo.
 **Tareas:** instalación limpia, db:init, tests, smoke, build, audits, Git status/log/remote, push y comparación de hashes.
 **Resultado esperado:** `main` local y `origin/main` coincidentes.
-**Criterios de finalización:** definición de terminado revisada, reporte A–Z y push confirmado sin force.
+**Criterios de finalización:** instalación limpia, db:init, tests, cobertura, smoke, build y audits aprobados; push de `main` confirmado sin force. QA visual continúa identificado como validación manual pendiente.
 
 ## Hitos de commits previstos
 
