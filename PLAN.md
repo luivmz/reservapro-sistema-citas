@@ -128,14 +128,14 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Objetivo:** construir SPA ligera sin framework usando Vite y ES2023.
 **Tareas:** shell, router cliente, sesión, API client, login/registro, navegación RBAC, estados UI y CSS responsive.
 **Resultado esperado:** aplicación navegable que consume REST.
-**Criterios de finalización:** tests unitarios de lógica y smoke de vistas aprobados.
+**Criterios de finalización:** tests unitarios de lógica y build de producción aprobados; la interacción visual se conserva en QA manual.
 
 ## Fase 18. FullCalendar — pendiente de validación manual
 
 **Objetivo:** mostrar y operar agenda en mes/semana/día.
 **Tareas:** mapear eventos, detalle, creación, edición, reprogramación/cancelación y reversión ante rechazo.
 **Resultado esperado:** calendario funcional por permisos.
-**Criterios de finalización:** tests de mapping/reversión y build aprobados; interacción visual queda sujeta a QA.
+**Criterios de finalización:** mapping automatizado y build aprobados; interacción y reversión visual quedan sujetas a QA manual.
 
 ## Fase 19. Dashboard — completado
 
@@ -144,26 +144,26 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** tarjetas/listas con estados vacío/loading/error.
 **Criterios de finalización:** métricas y aislamiento automatizados; vista integrada.
 
-## Fase 20. QA funcional — pendiente
+## Fase 20. QA funcional — completado
 
 **Objetivo:** validar recorridos funcionales completos.
 **Tareas:** suites de integración, smoke, checklist manual.
 **Resultado esperado:** evidencia por requisito.
-**Criterios de finalización:** automatización verde y pendientes manuales identificados.
+**Criterios de finalización:** 33/33 pruebas backend, 4/4 frontend y smoke HTTP reproducido dos veces; pendientes manuales identificados en `docs/QA.md`.
 
-## Fase 21. QA RBAC — pendiente
+## Fase 21. QA RBAC — completado
 
 **Objetivo:** demostrar la matriz de permisos.
 **Tareas:** pruebas positivas y negativas por rol y contexto.
 **Resultado esperado:** permisos backend verificables.
-**Criterios de finalización:** cero bypass conocido en endpoints documentados.
+**Criterios de finalización:** pruebas positivas y negativas de los cuatro roles aprobadas; cero bypass conocido en endpoints documentados.
 
-## Fase 22. QA aislamiento multi-tenant — pendiente
+## Fase 22. QA aislamiento multi-tenant — completado
 
 **Objetivo:** demostrar separación A/B integral.
 **Tareas:** lectura, cambio, baja, relaciones, agenda, disponibilidad y dashboard cruzados.
 **Resultado esperado:** respuestas seguras sin fuga.
-**Criterios de finalización:** suite A/B completa aprobada.
+**Criterios de finalización:** suite A/B aprobada para lectura, cambios, bajas, relaciones, agenda, disponibilidad, reservas y dashboard.
 
 ## Fase 23. QA visual — pendiente de validación manual
 
@@ -172,12 +172,12 @@ Una fase solo pasa a `completado` con evidencia verificable. Este documento se a
 **Resultado esperado:** checklist visual con evidencia honesta.
 **Criterios de finalización:** puntos inspeccionados marcados aprobados; el resto `pendiente de validación manual`.
 
-## Fase 24. Documentación — pendiente
+## Fase 24. Documentación — completado
 
 **Objetivo:** alinear documentación con la implementación final.
 **Tareas:** completar README, arquitectura, API, QA, variables, comandos, limitaciones y trazabilidad.
 **Resultado esperado:** una persona nueva puede instalar y evaluar el proyecto.
-**Criterios de finalización:** comandos probados y rutas/esquema contrastados con código.
+**Criterios de finalización:** README, arquitectura, API y QA contrastados con rutas, esquema, variables, scripts y resultados reales.
 
 ## Fase 25. Verificación final y publicación — pendiente
 

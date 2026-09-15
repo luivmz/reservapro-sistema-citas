@@ -7,7 +7,7 @@ ReservaPro sigue una arquitectura cliente-servidor modular. El navegador nunca a
 ```text
 HTML/CSS/JavaScript + Vite + FullCalendar
                     |
-                 HTTPS/JSON
+                HTTP(S)/JSON
                     |
 Route -> Auth/RBAC -> Controller -> Service -> Repository -> SQLite
                     |             |
@@ -77,7 +77,7 @@ users     1 --- N appointments      (created_by)
 
 Todas las relaciones operativas incluyen `tenant_id`. Se usan claves foráneas compuestas `(tenant_id, id)` para que SQLite impida asociaciones cross-tenant incluso si una validación de aplicación falla.
 
-### Tablas planificadas
+### Tablas implementadas
 
 #### tenants
 
@@ -157,21 +157,21 @@ El API no expone un selector de tenant para una sesión. Los endpoints de regist
 
 - `bcryptjs` con coste configurable razonable.
 - JWT HS256 con secreto externo de al menos 32 caracteres y expiración explícita.
-- Helmet y CSP ajustada; CORS limitado a `FRONTEND_ORIGIN`.
-- Límite de tamaño JSON y rate limit básico para autenticación si no perjudica tests.
+- Helmet aporta cabeceras de seguridad; CORS se limita a `FRONTEND_ORIGIN`.
+- El cuerpo JSON se limita a 100 KiB.
 - Validator.js y validadores propios con listas permitidas.
 - Statements preparados de `better-sqlite3`; ninguna concatenación de valores SQL.
 - Mensajes opacos en login y lookups cross-tenant.
 - Stack solo en entorno de test/desarrollo controlado, nunca en producción.
 
-Limitación conocida: el frontend necesita conservar el bearer token durante la sesión. Se priorizará memoria con respaldo en `sessionStorage`; un despliegue productivo debería evaluar cookies HttpOnly con protección CSRF y TLS obligatorio.
+Limitaciones conocidas: el bearer token se conserva en `sessionStorage` hasta el logout lógico o cierre de pestaña, y no hay rate limiting. Un despliegue productivo debería evaluar cookies HttpOnly con protección CSRF, TLS obligatorio y limitación de intentos.
 
-## 6. Estructura prevista
+## 6. Estructura implementada
 
 ```text
 backend/src/
   config/ controllers/ database/ errors/ middleware/
-  repositories/ routes/ services/ utils/ validators/
+  repositories/ routes/ services/ utils/
   app.js server.js
 backend/tests/
 frontend/src/
@@ -190,4 +190,4 @@ frontend/tests/
 
 ## 8. Verificación
 
-El esquema se validará con pruebas sobre `:memory:` o base temporal, `PRAGMA foreign_keys`, constraints e idempotencia. La API se probará con Supertest, y el frontend con Vitest/jsdom para lógica crítica. El checklist visual se conserva en `docs/QA.md` y solo se aprobará después de usar un navegador real.
+El esquema se valida sobre `:memory:` con `PRAGMA foreign_keys`, constraints e idempotencia. La API usa `node:test` y Supertest; el smoke levanta Express en un puerto efímero con SQLite en memoria. El frontend usa `node:test` para lógica crítica y Vite para el build. El checklist visual se conserva en `docs/QA.md` y solo se aprobará después de usar un navegador real.

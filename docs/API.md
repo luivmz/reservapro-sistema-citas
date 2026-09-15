@@ -1,6 +1,6 @@
 # Contrato API REST
 
-Documento inicial de diseño. Durante la implementación se completarán payloads y respuestas comprobados.
+Contrato contrastado con las rutas, servicios y pruebas de integración actuales.
 
 ## Convenciones
 
@@ -26,18 +26,25 @@ Documento inicial de diseño. Durante la implementación se completarán payload
 | GET | `/api/auth/me` | todos, identidad propia |
 | GET/POST | `/api/users` | ADMIN |
 | GET/PUT/DELETE | `/api/users/:id` | ADMIN, tenant |
-| GET/POST | `/api/clients` | ADMIN, RECEPTIONIST; CLIENT según operación contextual |
-| GET/PUT/DELETE | `/api/clients/:id` | ADMIN, RECEPTIONIST; propio según matriz |
-| GET/POST | `/api/employees` | lectura por roles; escritura ADMIN |
-| GET/PUT/DELETE | `/api/employees/:id` | lectura por roles; escritura ADMIN |
+| GET/POST | `/api/clients` | ADMIN, RECEPTIONIST |
+| GET | `/api/clients/:id` | ADMIN, RECEPTIONIST; CLIENT solo perfil propio |
+| PUT/DELETE | `/api/clients/:id` | ADMIN, RECEPTIONIST |
+| GET | `/api/employees` | todos; alcance contextual para PROFESSIONAL |
+| POST | `/api/employees` | ADMIN |
+| GET | `/api/employees/:id` | todos; alcance contextual según rol |
+| PUT/DELETE | `/api/employees/:id` | ADMIN |
 | GET/PUT | `/api/employees/:id/services` | GET permitido por alcance; PUT ADMIN |
 | GET/POST | `/api/employees/:id/schedules` | GET por alcance; POST ADMIN |
 | PUT/DELETE | `/api/employees/:id/schedules/:scheduleId` | ADMIN |
-| GET/POST | `/api/services` | lectura por roles; escritura ADMIN |
-| GET/PUT/DELETE | `/api/services/:id` | lectura por roles; escritura ADMIN |
+| GET | `/api/services` | todos; activos/asignados según rol |
+| POST | `/api/services` | ADMIN |
+| GET | `/api/services/:id` | todos; alcance contextual según rol |
+| PUT/DELETE | `/api/services/:id` | ADMIN |
 | GET | `/api/availability` | todos autenticados con catálogo permitido |
-| GET/POST | `/api/appointments` | por rol y alcance contextual |
-| GET/PUT | `/api/appointments/:id` | por rol y alcance contextual |
+| GET | `/api/appointments` | todos; tenant o perfil propio según rol |
+| POST | `/api/appointments` | ADMIN, RECEPTIONIST, CLIENT propio |
+| GET | `/api/appointments/:id` | todos; alcance contextual |
+| PUT | `/api/appointments/:id` | ADMIN, RECEPTIONIST; edición de notas |
 | PATCH | `/api/appointments/:id/reschedule` | ADMIN, RECEPTIONIST, CLIENT propio |
 | PATCH | `/api/appointments/:id/cancel` | ADMIN, RECEPTIONIST, CLIENT propio |
 | PATCH | `/api/appointments/:id/status` | ADMIN, RECEPTIONIST, PROFESSIONAL propio |
@@ -111,6 +118,29 @@ Documento inicial de diseño. Durante la implementación se completarán payload
 { "status": "CONFIRMED" }
 ```
 
+Las transiciones válidas son `SCHEDULED → CONFIRMED|CANCELLED` y `CONFIRMED → COMPLETED|NO_SHOW|CANCELLED`. No existe eliminación física pública de citas.
+
+## Campos de recursos operativos
+
+| Operación | Campos aceptados |
+|---|---|
+| Crear usuario | `name`, `email`, `password`, `role`, `active?` |
+| Crear cliente | `name`, `email?`, `phone?`, `notes?`, `userId?`, `active?` |
+| Crear empleado | `name`, `email?`, `phone?`, `userId?`, `active?` |
+| Crear servicio | `name`, `description?`, `durationMinutes`, `priceCents`, `active?` |
+| Crear horario | `dayOfWeek` (1=lunes…7=domingo), `startTime`, `endTime` |
+
+`PUT /api/employees/:id/services` reemplaza la asociación completa y recibe `serviceIds` como arreglo de UUID. Todos los IDs deben pertenecer al tenant autenticado. Los `PUT` de recursos aceptan cambios parciales de sus campos editables; las bajas responden `204` y cambian `active` a falso.
+
+## Filtros de colecciones
+
+- Usuarios: `search`, `role`, `active`, `page`, `limit`.
+- Clientes, empleados y servicios: `search`, `active`, `page`, `limit`.
+- Citas: `clientId`, `employeeId`, `serviceId`, `status`, `from`, `to`, `page`, `limit`.
+- Disponibilidad: requiere `employeeId`, `serviceId` y `date=YYYY-MM-DD`.
+
+Los filtros se combinan y nunca amplían el tenant derivado del JWT. `page` inicia en 1 y `limit` acepta de 1 a 100. Los elementos usan un objeto `data`; las colecciones agregan `meta` con `page`, `limit` y `total`.
+
 ## Códigos HTTP
 
 | Código | Uso |
@@ -126,4 +156,4 @@ Documento inicial de diseño. Durante la implementación se completarán payload
 | 422 | regla semántica no satisfecha |
 | 500 | error interno seguro |
 
-Los detalles finales se actualizarán desde las rutas y pruebas reales, evitando documentar endpoints ficticios.
+Los accesos cross-tenant usan normalmente `404` con códigos específicos del recurso para no revelar existencia. El backend ignora cualquier `tenantId`, `createdBy`, `status` o `endAt` que pretenda controlar la propiedad o duración durante la creación de citas.

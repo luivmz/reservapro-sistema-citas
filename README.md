@@ -2,9 +2,9 @@
 
 ReservaPro es una aplicación web académica para administrar clientes, profesionales, servicios, horarios y citas bajo un modelo SaaS multi-tenant con aislamiento estricto y autorización RBAC.
 
-> Estado: fase SDD. La implementación se construirá por fases y este README se actualizará únicamente con comandos y capacidades verificadas.
+> Estado: implementación funcional y QA automatizado completados. La validación visual en navegador y la publicación final permanecen pendientes.
 
-## Objetivo y características planificadas
+## Objetivo y características
 
 - Registro de organización con ADMIN inicial.
 - Autenticación JWT y contraseñas hasheadas.
@@ -22,7 +22,7 @@ ReservaPro es una aplicación web académica para administrar clientes, profesio
 - Frontend: HTML5, CSS3, JavaScript ES2023, Vite, FullCalendar, Day.js, SweetAlert2 y Toastify.
 - Backend: Node.js 20+, Express, JWT, bcryptjs y Validator.js.
 - Persistencia: SQLite con `better-sqlite3`.
-- Pruebas: Vitest, Supertest y jsdom.
+- Pruebas: runner nativo `node:test`, Supertest y smoke HTTP autocontenido.
 
 ## Arquitectura, SDD y seguridad
 
@@ -30,7 +30,7 @@ El flujo backend es `Route → Controller → Service → Repository → SQLite`
 
 El desarrollo sigue el enfoque SDD exigido por la asignatura. La especificación se encuentra en [spec.md](spec.md), el plan verificable en [PLAN.md](PLAN.md) y las decisiones técnicas en [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Se utilizó Codex como asistente de desarrollo basado en IA; no se atribuye el trabajo a OpenCode.
 
-## Estructura prevista
+## Estructura
 
 ```text
 frontend/     interfaz Vite sin framework SPA
@@ -46,34 +46,85 @@ PLAN.md       fases y estado verificable
 - Node.js 20 o superior.
 - npm 10 o superior.
 
-## Instalación y ejecución
-
-Los comandos definitivos se añadirán después de crear y probar ambos workspaces. El flujo objetivo es:
+## Instalación en otra PC
 
 ```bash
 git clone https://github.com/luivmz/reservapro-sistema-citas.git
 cd reservapro-sistema-citas
 
 # Copiar .env.example a backend/.env y reemplazar JWT_SECRET.
+# Linux/macOS: cp .env.example backend/.env
+# PowerShell: Copy-Item .env.example backend\.env
 cd backend
 npm ci
 npm run db:init
 npm test
+npm run smoke
+npm audit
+
+# Volver a la raíz para instalar y verificar frontend.
+cd ../frontend
+npm ci
+npm test
+npm run build
+npm audit
+```
+
+La interfaz queda en `http://localhost:5173`; la API en `http://localhost:3000/api` y su health check en `http://localhost:3000/api/health`. No se incluye un secreto real ni una base SQLite en el repositorio.
+
+Para ejecutar, abra dos terminales desde la raíz:
+
+```bash
+# Terminal 1
+cd backend
 npm run dev
 
-# En otra terminal:
+# Terminal 2
 cd frontend
-npm ci
+npm run dev
+```
+
+## Variables de entorno
+
+Copie [.env.example](.env.example) como `backend/.env`. Las variables efectivas son:
+
+| Variable | Propósito | Valor local sugerido |
+|---|---|---|
+| `NODE_ENV` | modo de ejecución | `development` |
+| `PORT` | puerto de la API | `3000` |
+| `JWT_SECRET` | firma HS256; mínimo 32 caracteres impredecibles | sin valor real versionado |
+| `JWT_EXPIRES_IN` | vigencia del token | `2h` |
+| `DATABASE_PATH` | ruta relativa a `backend/` o `:memory:` | `./data/reservapro.sqlite3` |
+| `FRONTEND_ORIGIN` | orígenes CORS separados por coma | `http://localhost:5173` |
+| `BCRYPT_ROUNDS` | coste bcrypt entre 10 y 14 | `12` |
+
+El backend rechaza al iniciar un `JWT_SECRET` menor de 32 caracteres. `backend/.env`, las bases y sus journals están ignorados por Git.
+
+## Creación del tenant y ADMIN inicial
+
+No existe un seed con credenciales fijas. En una base nueva, abra `http://localhost:5173/#register` y complete el registro de organización, o envíe `POST /api/auth/register` con `organizationName`, `tenantSlug`, `timezone`, `adminName`, `email` y `password`. La operación crea tenant y ADMIN de forma atómica.
+
+## Comandos por workspace
+
+Backend:
+
+```bash
+cd backend
+npm run db:init
+npm test
+npm run test:coverage
+npm run smoke
+npm run dev
+```
+
+Frontend:
+
+```bash
+cd frontend
 npm test
 npm run build
 npm run dev
 ```
-
-No se incluye un secreto real ni una base SQLite en el repositorio.
-
-## Variables de entorno previstas
-
-Consulte [.env.example](.env.example). `JWT_SECRET` debe tener al menos 32 caracteres impredecibles. El archivo real debe ubicarse en `backend/.env` y no se versiona.
 
 ## API y roles
 
@@ -81,7 +132,7 @@ El contrato inicial se documenta en [docs/API.md](docs/API.md). Los permisos com
 
 ## Pruebas y QA
 
-La estrategia y el checklist se encuentran en [docs/QA.md](docs/QA.md). Ningún control visual se declarará aprobado sin inspección en navegador.
+La última verificación automatizada registró 33/33 pruebas backend en 6 suites, 96.91% de líneas cubiertas, 4/4 pruebas frontend, build Vite correcto, un smoke de 11 recorridos HTTP reproducido dos veces y 0 vulnerabilidades en ambos `npm audit`. La evidencia y el checklist están en [docs/QA.md](docs/QA.md). Ningún control visual se declara aprobado sin inspección en navegador.
 
 ## Multi-tenancy
 
@@ -89,7 +140,7 @@ Cada recurso operativo pertenece a un `tenant_id`. El backend obtiene ese valor 
 
 ## Limitaciones iniciales
 
-No incluye pagos, correo/SMS real, calendarios externos, vacaciones, feriados, sucursales complejas, facturación, auditoría empresarial ni suscripciones. SQLite y una sola instancia Node están orientados al entorno académico/local.
+No incluye pagos, correo/SMS real, calendarios externos, vacaciones, feriados, sucursales complejas, facturación, auditoría empresarial ni suscripciones. SQLite y una sola instancia Node están orientados al entorno académico/local. No se implementó rate limiting ni revocación central de JWT; un despliegue público requeriría TLS, cookies HttpOnly/CSRF o una estrategia equivalente, rate limiting y una revisión de hardening.
 
 ## Autores/equipo
 
