@@ -259,4 +259,43 @@ describe('disponibilidad, citas y conflictos', () => {
     await request(app).patch(`/api/appointments/${clientCreated.body.data.id}/cancel`)
       .set(bearer(clientToken)).expect(200);
   });
+
+  test('Tenant A no consulta disponibilidad, reserva ni muta citas de Tenant B', async () => {
+    const appointmentB = await appointment(b, at('10:00'));
+
+    await request(app)
+      .get(`/api/availability?employeeId=${b.employee.id}&serviceId=${b.service60.id}&date=${date}`)
+      .set(bearer(a.token))
+      .expect(404);
+    await request(app).post('/api/appointments').set(bearer(a.token)).send({
+      clientId: a.client.id,
+      employeeId: b.employee.id,
+      serviceId: b.service60.id,
+      startAt: at('12:00'),
+    }).expect(404);
+    await request(app).post('/api/appointments').set(bearer(a.token)).send({
+      clientId: b.client.id,
+      employeeId: a.employee.id,
+      serviceId: a.service60.id,
+      startAt: at('12:00'),
+    }).expect(404);
+
+    await request(app).get(`/api/appointments/${appointmentB.id}`).set(bearer(a.token)).expect(404);
+    await request(app).put(`/api/appointments/${appointmentB.id}`).set(bearer(a.token))
+      .send({ notes: 'Intrusion' }).expect(404);
+    await request(app).patch(`/api/appointments/${appointmentB.id}/reschedule`).set(bearer(a.token))
+      .send({ startAt: at('13:00') }).expect(404);
+    await request(app).patch(`/api/appointments/${appointmentB.id}/cancel`)
+      .set(bearer(a.token)).expect(404);
+    await request(app).patch(`/api/appointments/${appointmentB.id}/status`).set(bearer(a.token))
+      .send({ status: 'CONFIRMED' }).expect(404);
+
+    const untouched = await request(app)
+      .get(`/api/appointments/${appointmentB.id}`)
+      .set(bearer(b.token))
+      .expect(200);
+    assert.equal(untouched.body.data.status, 'SCHEDULED');
+    assert.equal(untouched.body.data.notes, '');
+    assert.equal(untouched.body.data.startAt, '2030-01-07T15:00:00.000Z');
+  });
 });

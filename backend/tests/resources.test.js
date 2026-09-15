@@ -202,6 +202,48 @@ describe('recursos tenant-scoped, asociaciones y horarios', () => {
     assert.deepEqual(stillAssociated.body.data.map(({ id }) => id), [serviceA.id]);
   });
 
+  test('Tenant A no lee, modifica ni desactiva empleados, servicios u horarios de Tenant B', async () => {
+    const employeeB = await createEmployee(adminB.token, { email: 'employee-b@example.com' });
+    const serviceB = await createService(adminB.token, { name: 'Servicio B' });
+    await request(app)
+      .put(`/api/employees/${employeeB.id}/services`)
+      .set(bearer(adminB.token))
+      .send({ serviceIds: [serviceB.id] })
+      .expect(200);
+    await request(app)
+      .post(`/api/employees/${employeeB.id}/schedules`)
+      .set(bearer(adminB.token))
+      .send({ dayOfWeek: 1, startTime: '09:00', endTime: '17:00' })
+      .expect(201);
+
+    await request(app).get(`/api/employees/${employeeB.id}`).set(bearer(adminA.token)).expect(404);
+    await request(app).put(`/api/employees/${employeeB.id}`).set(bearer(adminA.token))
+      .send({ name: 'Intrusion' }).expect(404);
+    await request(app).delete(`/api/employees/${employeeB.id}`).set(bearer(adminA.token)).expect(404);
+    await request(app).get(`/api/employees/${employeeB.id}/services`).set(bearer(adminA.token)).expect(404);
+    await request(app).get(`/api/employees/${employeeB.id}/schedules`).set(bearer(adminA.token)).expect(404);
+    await request(app).post(`/api/employees/${employeeB.id}/schedules`).set(bearer(adminA.token))
+      .send({ dayOfWeek: 2, startTime: '09:00', endTime: '17:00' }).expect(404);
+
+    await request(app).get(`/api/services/${serviceB.id}`).set(bearer(adminA.token)).expect(404);
+    await request(app).put(`/api/services/${serviceB.id}`).set(bearer(adminA.token))
+      .send({ name: 'Intrusion' }).expect(404);
+    await request(app).delete(`/api/services/${serviceB.id}`).set(bearer(adminA.token)).expect(404);
+
+    const untouchedEmployee = await request(app)
+      .get(`/api/employees/${employeeB.id}`)
+      .set(bearer(adminB.token))
+      .expect(200);
+    const untouchedService = await request(app)
+      .get(`/api/services/${serviceB.id}`)
+      .set(bearer(adminB.token))
+      .expect(200);
+    assert.equal(untouchedEmployee.body.data.name, 'Profesional Uno');
+    assert.equal(untouchedEmployee.body.data.active, true);
+    assert.equal(untouchedService.body.data.name, 'Servicio B');
+    assert.equal(untouchedService.body.data.active, true);
+  });
+
   test('gestiona horarios y rechaza bloques superpuestos', async () => {
     const employee = await createEmployee(adminA.token);
     const schedule = (await request(app)
@@ -252,10 +294,18 @@ describe('recursos tenant-scoped, asociaciones y horarios', () => {
       .send({ name: 'Cliente recepción' }).expect(201);
     await request(app).post('/api/employees').set(bearer(receptionistToken))
       .send({ name: 'No permitido' }).expect(403);
+    await request(app).get('/api/users').set(bearer(receptionistToken)).expect(403);
+    await request(app).put(`/api/employees/${employee.id}/services`).set(bearer(receptionistToken))
+      .send({ serviceIds: [service.id] }).expect(403);
     await request(app).post('/api/services').set(bearer(professionalToken))
       .send({ name: 'No permitido', durationMinutes: 60, priceCents: 0 }).expect(403);
+    await request(app).post('/api/clients').set(bearer(professionalToken))
+      .send({ name: 'No permitido' }).expect(403);
+    await request(app).get('/api/users').set(bearer(professionalToken)).expect(403);
     await request(app).post('/api/employees').set(bearer(clientToken))
       .send({ name: 'No permitido' }).expect(403);
+    await request(app).get('/api/clients').set(bearer(clientToken)).expect(403);
+    await request(app).get('/api/dashboard').set(bearer(clientToken)).expect(403);
 
     const ownEmployee = await request(app).get('/api/employees').set(bearer(professionalToken)).expect(200);
     assert.deepEqual(ownEmployee.body.data.map(({ id }) => id), [employee.id]);
